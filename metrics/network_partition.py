@@ -68,7 +68,7 @@ def compute_cut_data_from_adj(adj_row, adj_col, adj_data, assignment):
     (We simply reuse adj_row/adj_col and modify data.)
     """
     # assignment is 1-D tensor (n,), and adj_col indexes into it
-    cut_data = adj_data * assignment[adj_col].to(adj_data.dtype)
+    cut_data = adj_data * assignment[adj_row] * assignment[adj_col].to(adj_data.dtype)
     return adj_row, adj_col, cut_data
 
 def row_sum_from_coo(row_idx, values, n_rows, dtype=torch.float32):
@@ -135,12 +135,10 @@ def partition_pass(G, r):
     # To avoid infinite loop, make sure we stop if no candidate exists
     while (moveable & balanced).any().item():
         # Compute gains:
-        # gains = - (D @ cut_matrix).sum(axis=1)
+        # gains = - (cut_matrix).sum(axis=1)
         # D @ cut_matrix multiplies each row by assignment[row], so
         # rowwise_sum = sum_j cut_data[row, j]
-        row_sums = row_sum_from_coo(cut_row, cut_data, n)            # sum_j cut_data[row, j]
-        # D multiplies row_sums by assignment
-        gains = - (assignment.to(row_sums.dtype) * row_sums)        # shape (n,)
+        gains = - row_sum_from_coo(cut_row, cut_data, n)         # sum_j cut_data[row, j]
 
         # Find candidate indices where moveable & balanced
         candidates = torch.where(moveable & balanced)[0]
@@ -149,23 +147,23 @@ def partition_pass(G, r):
 
         candidate_vals = gains[candidates]
         # choose the candidate with maximum gain (ties broken arbitrarily)
-        max_idx_in_candidates = torch.argmax(candidate_vals)
-        max_vertex = int(candidates[max_idx_in_candidates].item())
+        max_idx = torch.argmax(candidate_vals)
+        max_vertex = int(candidates[max_idx].item())
 
         # flip assignment for that vertex
         assignment[max_vertex] *= -1
 
         # Update cut_data: because cut_data = adj_value * assignment[col]
         # flipping assignment[v] toggles sign of all entries with col == v
-        affected = (cut_col == max_vertex)
+        affected = (cut_col == max_vertex) | (cut_row == max_vertex)
         if affected.any().item():
-            cut_data[affected] *= -1
+            cut_data[affected] *= -1        
 
         # Update balanced after flip
         update_balanced(balanced, assignment, r)
 
-        # Count cuts: number of entries in D @ cut_matrix equal to -1, divide by 2
-        n_cuts_raw = count_neg_entries_in_DX(cut_row, cut_col, cut_data, assignment)
+        # Count cuts: number of entries in cut_matrix equal to -1, divide by 2
+        n_cuts_raw = int((cut_data == -1).sum().item())
         n_cuts = n_cuts_raw // 2
 
         cuts.append((n_cuts,
@@ -243,7 +241,7 @@ def main():
     # ensure results directory exists (relative)
     out_dir = os.path.join("..", "results")
     os.makedirs(out_dir, exist_ok=True)
-    out_path = os.path.join(out_dir, "cheeger_2.json")
+    out_path = os.path.join(out_dir, "cheeger_3.json")
 
     with open(out_path, "w") as f:
         json.dump(results, f, indent=4, cls=TorchJSONEncoder)
