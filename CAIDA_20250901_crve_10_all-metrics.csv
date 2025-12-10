@@ -1,0 +1,2 @@
+graph_index,|V|,|E|,avg_degree,nr_connected_components,degree_std,degree_entropy,assortativity,transitivity,average_clustering,cheeger constant,treewidth,algebraic_connectivity
+CAIDA_20250901_crve_10.txt,7864,58276,14.820956256358087,1,66.7960104154985,3.4013021999902624,-0.4693952703905656,0.22831514019779536,0.5816781871589978,1.0632549268912905,180,0.09983731803382152
