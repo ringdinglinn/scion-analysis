@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 cheeger_torch.py
 
@@ -20,6 +19,7 @@ import numpy as np
 from scipy import sparse as sp
 import os
 import time
+import utils.io as io
 
 # --- Utilities ----------------------------------------------------------------
 
@@ -43,6 +43,8 @@ def update_balanced(balanced, assignment, r):
     - assignment: torch.IntTensor of shape (n,) with values ±1
     - r: float, target fraction
     """
+    m = 0.05
+
     n = assignment.numel()
     num_neg = (assignment == -1).sum().item()
     num_pos = n - num_neg
@@ -51,7 +53,7 @@ def update_balanced(balanced, assignment, r):
     b = num_pos - assignment
     s = torch.minimum(a, b)
 
-    max_m = round(n * 0.05)
+    max_m = round(n * m)
     s_r = round(min(n * r, n * (1 - r)))
 
     # in-place update
@@ -136,9 +138,18 @@ def partition_pass(G, r):
     while (moveable & balanced).any().item():
         # Compute gains:
         # gains = - (cut_matrix).sum(axis=1)
-        # D @ cut_matrix multiplies each row by assignment[row], so
-        # rowwise_sum = sum_j cut_data[row, j]
-        gains = - row_sum_from_coo(cut_row, cut_data, n)         # sum_j cut_data[row, j]
+        num_neg_total = (assignment == -1).sum().item()
+        num_neg = torch.full((n,), num_neg_total, dtype=assignment.dtype)
+        num_neg = num_neg - assignment
+
+        num_pos_total = (assignment == 1).sum().item()
+        num_pos = torch.full((n,), num_pos_total, dtype=assignment.dtype)
+        num_pos = num_pos + assignment
+
+        min_size = torch.minimum(num_neg, num_pos)
+
+        row_sums = row_sum_from_coo(cut_row, cut_data, n)   # raw row sums
+        gains = - row_sums / min_size                                              # sum_j cut_data[row, j]
 
         # Find candidate indices where moveable & balanced
         candidates = torch.where(moveable & balanced)[0]
@@ -198,7 +209,7 @@ def run_passes(G, r, n_passes):
             updates += 1
             min_partition = (c, a, b)
 
-        print(f"pass: {i}, updates: {updates}, cur_cheeger: {current:.6f}")
+        print(f"pass: {i}, updates: {updates}, cur_cheeger: {current:.6f}, a = {a}, b = {b}")
 
     return min_partition
 
@@ -216,37 +227,40 @@ class TorchJSONEncoder(json.JSONEncoder):
 
 # --- main --------------------------------------------------------------------
 
-def main():
-    if len(sys.argv) < 2:
-        print("Usage: python cheeger_torch.py <edgelist_file>")
-        sys.exit(1)
+def run(graphs):
+    results_g = {}
+    for name, G in graphs.items():
+        r_s = [0.15, 0.25, 0.35, 0.45]
+        results_r = {}
+        for r in r_s:
+            start = time.time()
+            res = run_passes(G, r, 5)
+            elapsed = time.time() - start
+            if res is None:
+                results_r[str(r)] = None
+            else:
+                c, a, b = res
+                results_r[str(r)] = {"cheeger": cheeger(c, a, b), "c": c, "a": a, "b": b}
+            print(f"r={r}: {elapsed:.2f}s")
+        
+        results_g[name] = results_r
 
-    path = sys.argv[1]
-    G = nx.read_edgelist(path)
+    return results_g
 
-    # Example r values; you had only 0.45 earlier
-    r_s = [0.45]
-    results = {}
-    for r in r_s:
-        start = time.time()
-        res = run_passes(G, r, 5)
-        elapsed = time.time() - start
-        if res is None:
-            results[str(r)] = None
-        else:
-            c, a, b = res
-            results[str(r)] = {"cheeger": cheeger(c, a, b), "c": c, "a": a, "b": b}
-        print(f"r={r}: {elapsed:.2f}s")
+if __name__ == "__main__":
+    user_input = io.user_input_path()
+    graphs = {} 
+    if io.is_path(user_input):
+        graphs = io.load_graphs_from_folder(user_input, directed=False)
+    else:
+        graph_name, G = io.load_graph(user_input, directed=False)
+        graphs[graph_name] = G
 
-    # ensure results directory exists (relative)
-    out_dir = os.path.join("..", "results")
-    os.makedirs(out_dir, exist_ok=True)
-    out_path = os.path.join(out_dir, "cheeger_3.json")
+    out_path = io.user_output_path()
+
+    results = run(graphs)
 
     with open(out_path, "w") as f:
         json.dump(results, f, indent=4, cls=TorchJSONEncoder)
 
     print(f"Done — results written to: {out_path}")
-
-if __name__ == "__main__":
-    main()

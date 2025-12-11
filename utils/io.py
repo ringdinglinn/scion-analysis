@@ -46,16 +46,16 @@ def save_metrics_to_csv(metrics_list, output_file):
             writer.writerow(metrics)
     print(f"Metrics saved to {output_file}")
 
-def user_input_path():
-    if (len(sys.argv) < 2):
+def user_input_path(index=1):
+    if (len(sys.argv) < index+1):
         print("no input path")
         sys.exit(1)
 
-    return sys.argv[1]
+    return sys.argv[index]
 
-def user_output_path():
-    if (len(sys.argv) < 3):
+def user_output_path(index=2):
+    if (len(sys.argv) < index+1):
         print("no output path")
         sys.exit(1)
 
-    return sys.argv[2]
+    return sys.argv[index]
