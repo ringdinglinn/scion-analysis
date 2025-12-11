@@ -2,6 +2,7 @@ import os
 import csv
 import networkx as nx
 import sys
+import json
 
 def load_graphs_from_folder(folder_path, directed=True):
     graphs = {}
@@ -45,6 +46,15 @@ def save_metrics_to_csv(metrics_list, output_file):
         for metrics in metrics_list:
             writer.writerow(metrics)
     print(f"Metrics saved to {output_file}")
+
+def save_json(data, out_path):
+    with open(out_path, "w") as f:
+        json.dump(data, f, indent=4)
+
+    print(f"Done — results written to: {out_path}")
+
+def save_edgelist(G, path, name):
+    nx.write_edgelist(G, os.path.join(path, name))
 
 def user_input_path(index=1):
     if (len(sys.argv) < index+1):
