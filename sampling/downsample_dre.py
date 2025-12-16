@@ -1,5 +1,4 @@
 import networkx as nx
-import random
 import sys
 import os
 import numpy as np
@@ -9,6 +8,7 @@ def reduce_crve(G, f):
     edges = list(G.edges())
     del_edges = np.random.choice(len(edges), k, replace=False)
     G.remove_edges_from([edges[i] for i in del_edges])
+    G.remove_nodes(nx.isolates(G))
 
 if len(sys.argv) < 3:
     print("Usage: python script.py <edgelist_file> <fraction>")

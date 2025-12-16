@@ -57,6 +57,13 @@ def save_edgelist(G, path, name):
     nx.write_edgelist(G, os.path.join(path, name))
 
 def user_input_path(index=1):
+    if (len(sys.argv) < index+1) or not (os.path.isfile(sys.argv[index]) or is_path(sys.argv[index])):
+        print("no input path")
+        sys.exit(1)
+
+    return sys.argv[index]
+
+def user_input(index=1):
     if (len(sys.argv) < index+1):
         print("no input path")
         sys.exit(1)

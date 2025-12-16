@@ -1,7 +1,7 @@
 import networkx as nx
-from metrics.network_partition import cheeger_constant
-from metrics_basics import calculate_metrics as calculate_basic_metrics
-import sys
+from metrics.network_partition import calculate_cheeger_costant
+from metrics.metrics_basics import calculate_metrics as calculate_basic_metrics
+from metrics.spectral import calculate_spectral_metrics
 import utils.io as io
 
 def calculate_metrics(G, graph_name):
@@ -11,8 +11,9 @@ def calculate_metrics(G, graph_name):
     print(f"{graph_name}, transitivity: {metrics['transitivity']}")
     metrics['average_clustering']   = nx.average_clustering(G)
     print(f"{graph_name}, average_clustering: {metrics['average_clustering']}")
-    metrics['cheeger constant']     = cheeger_constant(G, 0.45, 3)
+    metrics['cheeger constant']     = calculate_cheeger_costant(G, 0.45, 3)
     print(f"{graph_name}, cheeger: {metrics['cheeger constant']}")
+    metrics['n_spanning_trees']     = nx.number_of_spanning_trees(G)
 
     try:
         import networkx.algorithms.approximation as nx_app
@@ -21,14 +22,7 @@ def calculate_metrics(G, graph_name):
         metrics['treewidth'] = None
 
     print(f"{graph_name}, treewidth: {metrics['treewidth']}")
-
-    try:
-        metrics['algebraic_connectivity'] = nx.algebraic_connectivity(G)
-    except:
-        metrics['algebraic_connectivity'] = None
-    
-    print(f"{graph_name}, algebraic connectivity: {metrics['algebraic_connectivity']}")
-    
+        
     return metrics
 
 def run_all_metrics(graph_list):
@@ -37,8 +31,9 @@ def run_all_metrics(graph_list):
     for filename, G in graph_list.items():
         basic_metrics = calculate_basic_metrics(G, filename)
         metrics = calculate_metrics(G, filename)
+        # spectral_metrics = calculate_spectral_metrics(G, filename)
 
-        metrics = basic_metrics | metrics
+        metrics = basic_metrics | metrics #| spectral_metrics
 
         print(f"Calculated complex metrics for {filename}:\n{metrics}")
 

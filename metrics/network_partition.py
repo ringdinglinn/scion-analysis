@@ -264,3 +264,9 @@ if __name__ == "__main__":
         json.dump(results, f, indent=4, cls=TorchJSONEncoder)
 
     print(f"Done — results written to: {out_path}")
+
+# --- public --------------------------------------------------------------------
+
+def calculate_cheeger_costant(G, r, n):
+    c, a, b = run_passes(G, r, n)
+    return cheeger(c, a, b)

@@ -8,7 +8,7 @@ def eigenvals(M):
     e = np.sort(e)[::-1]
     return e
 
-def natural_connectivity(e):
+def natural_connectivity(G, e):
     return np.log(np.sum(np.exp(e)) / G.number_of_nodes())
 
 def spectral_gap(e):
@@ -18,23 +18,23 @@ def spectral_radius(e):
     return e[0]
 
 def network_criticality(e, n):
-    return np.sum(1 / e[1:])/n
+    return np.sum(1/e[1:])/n
 
-def spectral_metrics(G):
+def calculate_spectral_metrics(G, graph_name):
     metrics = {}
+    metrics["graph_index"] = graph_name
     A = nx.adjacency_matrix(G)
     e = eigenvals(A)
-    metrics["natural connectivity"] = natural_connectivity(e)
+    metrics["natural connectivity"] = natural_connectivity(G, e)
     metrics["spectral gap"] = spectral_gap(e)
     metrics["spectral radius"] = spectral_radius(e)
 
-    L = nx.laplacian_matrix(G)
+    L = nx.normalized_laplacian_matrix(G)
     e_ = eigenvals(L)
     metrics["effective graph resistance"] = network_criticality(e_, G.number_of_nodes())
+    metrics["algebaric connectivity"] = nx.algebraic_connectivity(G)
 
     return metrics
-
-def spectral_gap(G):
 
 if __name__ == "__main__":
     user_input = io.user_input_path()
@@ -47,6 +47,6 @@ if __name__ == "__main__":
 
     output_path = io.user_output_path()
 
-    results = {name: natural_connectivity(g) for name, g in graphs.items()}
+    results = [calculate_spectral_metrics(name, G) for name, G in graphs.items()]  
 
-    io.save_json(results, output_path)
+    io.save_metrics_to_csv(results, output_path)

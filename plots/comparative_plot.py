@@ -10,7 +10,7 @@ df1 = pd.DataFrame(io.load_csv(input_path_1))
 df2 = pd.DataFrame(io.load_csv(input_path_2))
 
 basic_metrics = ["|V|", "|E|", "avg_degree"]
-complex_metrics = ["algebraic_connectivity", "cheeger constant"]  # add more if present
+complex_metrics = ["algebraic connectivity", "cheeger constant"]  # add more if present
 all_metrics = basic_metrics + complex_metrics
 
 
