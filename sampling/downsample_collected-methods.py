@@ -46,7 +46,7 @@ def sample_FF(G, ratio):
 def sample_TIES(G, ratio):
     sampler = gs.TIES()
     k = round(G.number_of_nodes() * ratio)
-    return sampler.ties(G, k, ratio)
+    return sampler.ties(G, k, 3*k/4)
 
 if __name__ == "__main__":
     user_input = io.user_input_path()
@@ -64,12 +64,12 @@ if __name__ == "__main__":
     for name, G in graphs.items():
         for ratio in ratios:
             for method_name, method_func in [
-                ("mhrw", sample_mhrw),
-                ("rwf", sample_RWF),
-                ("isrw", sample_ISRW),
-                ("sb", sample_SB),
-                ("ff", sample_FF),
-                ("srw", sample_SRW),
+                # ("mhrw", sample_mhrw),
+                # ("rwf", sample_RWF),
+                # ("isrw", sample_ISRW),
+                # ("sb", sample_SB),
+                # ("ff", sample_FF),
+                # ("srw", sample_SRW),
                 ("ties", sample_TIES),
             ]:
                 H = method_func(G, ratio)

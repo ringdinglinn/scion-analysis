@@ -29,11 +29,13 @@ def run_all_metrics(graph_list):
     results = []
 
     for filename, G in graph_list.items():
+        if G.number_of_nodes() == 0:
+            continue
         basic_metrics = calculate_basic_metrics(G, filename)
         metrics = calculate_metrics(G, filename)
-        # spectral_metrics = calculate_spectral_metrics(G, filename)
+        spectral_metrics = calculate_spectral_metrics(G, filename)
 
-        metrics = basic_metrics | metrics #| spectral_metrics
+        metrics = basic_metrics | metrics | spectral_metrics
 
         print(f"Calculated complex metrics for {filename}:\n{metrics}")
 

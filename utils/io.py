@@ -4,6 +4,8 @@ import networkx as nx
 import sys
 import json
 
+current_index = 1
+
 def load_graphs_from_folder(folder_path, directed=True):
     graphs = {}
     for filename in os.listdir(folder_path):
@@ -57,22 +59,56 @@ def save_edgelist(G, path, name):
     nx.write_edgelist(G, os.path.join(path, name))
 
 def user_input_path(index=1):
-    if (len(sys.argv) < index+1) or not (os.path.isfile(sys.argv[index]) or is_path(sys.argv[index])):
+    global current_index
+    if (len(sys.argv) <= current_index) or not (os.path.isfile(sys.argv[current_index]) or is_path(sys.argv[current_index])):
         print("no input path")
         sys.exit(1)
 
-    return sys.argv[index]
+    val = sys.argv[current_index]
+    current_index += 1
+    return val
 
 def user_input(index=1):
-    if (len(sys.argv) < index+1):
+    global current_index
+    if (len(sys.argv) <= current_index):
         print("no input path")
         sys.exit(1)
 
-    return sys.argv[index]
+    val = sys.argv[current_index]
+    current_index += 1
+    return val
 
-def user_output_path(index=2):
-    if (len(sys.argv) < index+1):
+def user_output_path(index=None):
+    if (index is not None):
+        return user_output_path_index(index)
+    global current_index
+    if (len(sys.argv) <= current_index):
         print("no output path")
         sys.exit(1)
 
+    val = sys.argv[current_index]
+    current_index += 1
+    return val
+
+def user_output_path_index(index):
+    if (len(sys.argv) <= index):
+        print("no output path")
+        sys.exit(1)
     return sys.argv[index]
+
+def user_input_paths():
+    if len(sys.argv) < 2:
+        print("need at least one input CSV and one output path")
+        sys.exit(1)
+
+    input_paths = sys.argv[1:-1]
+
+    for path in input_paths:
+        if not (os.path.isfile(path) or is_path(path)):
+            print(f"invalid input path: {path}")
+            sys.exit(1)
+
+    return input_paths
+
+def user_output_path_last():
+    return user_output_path(index=len(sys.argv) - 1)
