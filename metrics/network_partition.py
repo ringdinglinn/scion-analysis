@@ -23,6 +23,8 @@ import utils.io as io
 
 # --- Utilities ----------------------------------------------------------------
 
+MIN_PART_SIZE = 1
+
 def build_sparse_coo_from_nx(G):
     """
     Build COO arrays (row_idx, col_idx, data, shape) from a networkx Graph.
@@ -57,7 +59,11 @@ def update_balanced(balanced, assignment, r):
     s_r = round(min(n * r, n * (1 - r)))
 
     # in-place update
-    balanced.copy_(torch.abs(s_r - s) <= max_m)
+    balance_ok = (torch.abs(s_r - s) <= max_m)
+    non_empty_ok = (a > 0) & (b > 0)
+
+    # in-place update
+    balanced.copy_(balance_ok & non_empty_ok)
 
 # --- Sparse helpers -----------------------------------------------------------
 
@@ -91,6 +97,13 @@ def count_neg_entries_in_DX(row_idx, col_idx, cut_data, assignment):
     v2 = assignment[row_idx].to(cut_data.dtype) * cut_data
     # equality with -1 (use elementwise comparison)
     return int((v2 == -1).sum().item())
+
+def create_cut(cut_data, assignment):
+    n_cuts_raw = int((cut_data == -1).sum().item())
+    n_cuts = n_cuts_raw // 2
+
+    a, b = int((assignment == -1).sum().item()), int((assignment == 1).sum().item())
+    return (n_cuts, a, b)
 
 # --- Algorithm ---------------------------------------------------------------
 
@@ -133,8 +146,9 @@ def partition_pass(G, r):
     update_balanced(balanced, assignment, r)
 
     cuts = []
+    
+    cuts.append(create_cut(cut_data, assignment))
 
-    # To avoid infinite loop, make sure we stop if no candidate exists
     while (moveable & balanced).any().item():
         # Compute gains:
         # gains = - (cut_matrix).sum(axis=1)
@@ -148,8 +162,8 @@ def partition_pass(G, r):
 
         min_size = torch.minimum(num_neg, num_pos)
 
-        row_sums = row_sum_from_coo(cut_row, cut_data, n)   # raw row sums
-        gains = - row_sums / min_size                                              # sum_j cut_data[row, j]
+        row_sums = row_sum_from_coo(cut_row, cut_data, n)
+        gains = - row_sums / min_size
 
         # Find candidate indices where moveable & balanced
         candidates = torch.where(moveable & balanced)[0]
@@ -173,13 +187,7 @@ def partition_pass(G, r):
         # Update balanced after flip
         update_balanced(balanced, assignment, r)
 
-        # Count cuts: number of entries in cut_matrix equal to -1, divide by 2
-        n_cuts_raw = int((cut_data == -1).sum().item())
-        n_cuts = n_cuts_raw // 2
-
-        cuts.append((n_cuts,
-                     int((assignment == -1).sum().item()),
-                     int((assignment == 1).sum().item())))
+        cuts.append(create_cut(cut_data, assignment))
 
         # mark vertex as non-moveable
         moveable[max_vertex] = False
@@ -268,5 +276,9 @@ if __name__ == "__main__":
 # --- public --------------------------------------------------------------------
 
 def calculate_cheeger_costant(G, r, n):
-    c, a, b = run_passes(G, r, n)
-    return cheeger(c, a, b)
+    res = run_passes(G, r, n)
+    if res is None:
+        return None
+    else:
+        c, a, b = res
+        return cheeger(c, a, b), min(a, b) / max(a, b)

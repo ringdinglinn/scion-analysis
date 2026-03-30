@@ -37,9 +37,9 @@ def connection_downsample_avg_deg(G, d):
 
 if __name__ == "__main__":
     user_input = io.user_input_path()
-    q = float(io.user_input(index=2))
-    n = int(io.user_input(index=3))
-    output_path = io.user_output_path(index=4)
+    q = float(io.user_input())
+    n = int(io.user_input())
+    output_path = io.user_output_path()
 
     graphs = {} 
     if io.is_path(user_input):
@@ -56,7 +56,7 @@ if __name__ == "__main__":
 
     for graph_name, G in graphs.items():
         for i in range(n):
-            print(f"downsampling {graph_name} to {q}")
+            print(f"downsampling {graph_name} to {q}, saving to: {output_path}")
             H = G.copy()
             H = downsample(H, q)
             name = graph_name.split('.')[0]

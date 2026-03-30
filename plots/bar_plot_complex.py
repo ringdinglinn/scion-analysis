@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 from utils import io
-from plots.graph_configs import scion_conn, scion_og, caida_conn, expander
+from plots.graph_configs import scion_og, caida_conn, expander
 from plots.mpl_config import apply_styling
 
 apply_styling()
@@ -18,7 +18,6 @@ configs.append(PlotConfig(
     input_graphs=[
         caida_conn,
         scion_og,
-        scion_conn,
         expander
     ],
     output_path="CAIDA_vs_SCION"

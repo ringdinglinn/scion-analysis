@@ -10,15 +10,15 @@ class GraphConfig:
 # SCION datasets
 # -----------------------------
 scion_og = GraphConfig(
-    "SCION Jan 2023",
-    "/Users/linn/Documents/01 UZH/MA/evaluation/results/SCION_complex.csv",
-    "#760400"
+    "SCION Core",
+    "results/SCION_ISDs_core.csv",
+    "#184D85"
 )
 
 scion_conn = GraphConfig(
     "SCION connectivity edge deletion",
-    "/Users/linn/Documents/01 UZH/MA/evaluation/results/SCION_conn.csv",
-    "#c04741"
+    "results/SCION_conn_12.45.csv",
+    "#6fa1cd"
 )
 
 # -----------------------------
@@ -26,19 +26,19 @@ scion_conn = GraphConfig(
 # -----------------------------
 caida_og = GraphConfig(
     "CAIDA Sep 2025",
-    "/Users/linn/Documents/01 UZH/MA/evaluation/results/CAIDA_basics.csv",
-    "#044387"
+    "results/CAIDA_20251201_basics.csv",
+    "#D85652"
 )
 
 caida_conn = GraphConfig(
     "CAIDA crve + connectivity downsample",
-    "/Users/linn/Documents/01 UZH/MA/evaluation/results/CAIDA_crve_10_conn_complex.csv",
-    "#67b2f4"
+    "results/CAIDA_20251201_crve_complex.csv",
+    "#BF332C"
 )
 
 
 expander = GraphConfig(
     "Expander graph",
-    '/Users/linn/Documents/01 UZH/MA/evaluation/results/Expander_complex_metrics.csv',
-    "#46B142"
+    'results/Expander_complex_metrics.csv',
+    "#64B142"
 )

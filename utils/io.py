@@ -112,3 +112,9 @@ def user_input_paths():
 
 def user_output_path_last():
     return user_output_path(index=len(sys.argv) - 1)
+
+def get_filepaths(directory):
+    return [os.path.join(directory, f) for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
+
+def get_filename_from_path(file_path):
+    return os.path.basename(file_path)

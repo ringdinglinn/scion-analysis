@@ -1,5 +1,6 @@
 import networkx as nx
 import argparse
+import utils.io as io
 
 def load_topology(path, directed=True, sort_nodes=True):
     """
@@ -14,10 +15,10 @@ def load_topology(path, directed=True, sort_nodes=True):
             line = line.strip()
             if not line or line.startswith("#"):
                 continue
+
+            print(line)
             parts = line.split("|")
-            if len(parts) != 3:
-                continue
-            a, b, relation = parts
+            a, b = parts[0], parts[1]
             a = a.strip()
             b = b.strip()
             G.add_edge(a, b)
@@ -32,16 +33,23 @@ def load_topology(path, directed=True, sort_nodes=True):
     return G
 
 def main():
-    parser = argparse.ArgumentParser(description="Load a SCION/AS topology and export edge list.")
-    parser.add_argument("input_file", help="Path to the topology file")
-    parser.add_argument("output_file", help="Path to save the edge list")
-    args = parser.parse_args()
+    user_input = io.user_input_path()
+    files = {}
+    if io.is_path(user_input):
+        paths = io.get_filepaths(user_input)
+    else:
+        paths = [user_input]
 
-    G = load_topology(args.input_file, directed=True, sort_nodes=True)
-    print(f"Loaded graph with {G.number_of_nodes()} nodes and {G.number_of_edges()} edges.")
+    for path in paths:
+        files[path] = load_topology(path, directed=False)
 
-    nx.write_edgelist(G, args.output_file, data=False)
-    print(f"Edge list saved to {args.output_file}")
+    output_path = io.user_output_path()
+
+    for path, G in files.items():
+        name = io.get_filename_from_path(path)
+        nx.write_edgelist(G, f"{output_path}/{name}" , data=False)
+
+        print(f"Edge list saved to {output_path}/{name}")
 
 if __name__ == "__main__":
     main()

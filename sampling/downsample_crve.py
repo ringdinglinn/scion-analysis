@@ -31,16 +31,19 @@ if len(sys.argv) < 3:
 path = io.user_input_path()
 filename = os.path.splitext(os.path.basename(path))[0]
 
-out_path = io.user_output_path(index=2)
+fraction = float(io.user_input())
+n = int(io.user_input())
 
-fraction = float(io.user_input(index=3))
-n = int(io.user_input(index=4))
+out_path = io.user_output_path()
+
 
 G = nx.read_edgelist(path)
 print("Graph loaded successfully!")
 print("Nodes:", G.number_of_nodes())
 print("Edges:", G.number_of_edges())
 print(f"Reducing to {fraction}")
+print(f"Saving to {out_path}")
+
 
 for i in range(n):
     H = G.copy()

@@ -7,7 +7,7 @@ def apply_styling():
         "mathtext.fontset": "cm",
         "mathtext.rm": "sans",
         "mathtext.default": "regular",
-        "font.size": 11,
+        "font.size": 14,
         "pdf.fonttype": 42,
         "ps.fonttype": 42,
     })

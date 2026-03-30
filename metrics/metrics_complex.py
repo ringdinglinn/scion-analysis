@@ -11,17 +11,16 @@ def calculate_metrics(G, graph_name):
     print(f"{graph_name}, transitivity: {metrics['transitivity']}")
     metrics['average_clustering']   = nx.average_clustering(G)
     print(f"{graph_name}, average_clustering: {metrics['average_clustering']}")
-    metrics['cheeger constant']     = calculate_cheeger_costant(G, 0.45, 3)
+    metrics['cheeger constant'], _  = calculate_cheeger_costant(G, 0.45, 3)
     print(f"{graph_name}, cheeger: {metrics['cheeger constant']}")
-    metrics['n_spanning_trees']     = nx.number_of_spanning_trees(G)
 
-    try:
-        import networkx.algorithms.approximation as nx_app
-        metrics['treewidth'] = nx_app.treewidth_min_fill_in(G)[0]
-    except:
-        metrics['treewidth'] = None
+    # try:
+    #     import networkx.algorithms.approximation as nx_app
+    #     metrics['treewidth'] = nx_app.treewidth_min_fill_in(G)[0]
+    # except:
+    #     metrics['treewidth'] = None
 
-    print(f"{graph_name}, treewidth: {metrics['treewidth']}")
+    # print(f"{graph_name}, treewidth: {metrics['treewidth']}")
         
     return metrics
 
