@@ -1,4 +1,0 @@
-graph_index,transitivity,average_clustering,vertex_connectivity,edge_connectivity,treewidth,algebraic_connectivity
-SCION_20230101_small.txt,0.27752569298242785,0.5925181689537002,1,1,283,0.323296091627897
-CAIDA_250901_ns-d-plus_small.txt,0.04182088253272156,0.44404841116570043,0,0,344,0.0
-CAIDA_20250901_crve_small.txt,0.22831514019779536,0.5816781871589978,1,1,180,0.0998373178238802

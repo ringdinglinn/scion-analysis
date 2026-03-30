@@ -1,2 +1,0 @@
-graph_index,|V|,|E|,avg_degree,nr_connected_components,degree_std,degree_entropy,assortativity
-CAIDA_20250901.txt,78638,493350,12.547368956484142,1,115.79571280965995,3.2513108971717353,-0.2576897553923708

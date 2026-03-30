@@ -1,2 +1,0 @@
-graph_index,|V|,|E|,avg_degree,nr_connected_components,degree_std,degree_entropy,assortativity,transitivity,average_clustering,cheeger constant,n_spanning_trees,treewidth,natural connectivity,spectral gap,spectral radius,effective graph resistance,algebaric connectivity
-SCION_20230101_small_dre_20.txt,1629,10556,12.960098219766728,20,23.031171744753497,4.595358298024237,-0.39373080796857945,0.057093983413638076,0.10412723820653122,1.205521472392638,0,179,34.86258148687553,25.669415208277606,42.2583030954666,inf,0.0
