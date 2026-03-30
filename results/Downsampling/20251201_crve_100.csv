@@ -1,2 +1,2 @@
-graph_index,|V|,|E|,avg_degree,nr_connected_components,degree_std,degree_entropy,assortativity
-20251201_crve_100_0.txt,78771,723215,18.36246842111945,1,133.36309690530578,3.321238969783794,-0.2239802548289204
+|V|,|E|,avg_degree,nr_connected_components,degree_std,degree_entropy,assortativity,graph_idx
+78771,723215,18.36246842111945,1,133.36309690530578,3.321238969783794,-0.2239802548289204,20251201_crve_100_0.txt

@@ -1,6 +1,6 @@
 import os
 import re
-from metrics.network_patition import calculate_cheeger_costant
+import metrics.network_partition as np
 import networkx as nx
 
 cores_dir = "data/20251201/scion_isd/core_edgelists"
@@ -91,20 +91,20 @@ for cc, (out_edges, n, core_control) in results.items():
 
     G = nx.Graph()
     G.add_edges_from(isd_edges)
-    res = calculate_cheeger_costant(G, isd_ratio, 10)
+    res = np.compute_r(G, [isd_ratio], 5)
     if res is None:
         results[cc] = (out_edges, n, core_control, isd_ratio, 0,0)
     else:
-        cheeger, cut_ratio = res
-        results[cc] = (out_edges, n, core_control, isd_ratio, cheeger, cut_ratio)
-        print(f"{cc}, cheeger: {cheeger}, cut ratio: {cut_ratio}, core control: {core_control}, isd ratio: {isd_ratio}")
+        cheeger = res
+        results[cc] = (out_edges, n, core_control, isd_ratio, cheeger)
+        print(f"{cc}, cheeger: {cheeger}, core control: {core_control}, isd ratio: {isd_ratio}")
 
 
 output_csv = "results/SCION_ISDs_border_breadth.csv"
 os.makedirs(os.path.dirname(output_csv), exist_ok=True)
 with open(output_csv, "w") as f:
-    f.write("cc,out_edges,nodes_in_isd,core_control,isd_ratio,cheeger,cut_ratio\n")
-    for cc, (out_edges, nodes_in_isd, core_control, isd_ratio, cheeger, cut_ratio) in results.items():
-        f.write(f"{cc},{out_edges},{nodes_in_isd},{core_control},{isd_ratio},{cheeger},{cut_ratio}\n")
+    f.write("cc,out_edges,nodes_in_isd,core_control,isd_ratio,cheeger\n")
+    for cc, (out_edges, nodes_in_isd, core_control, isd_ratio, cheeger) in results.items():
+        f.write(f"{cc},{out_edges},{nodes_in_isd},{core_control},{isd_ratio},{cheeger}\n")
 
 print(f"Results saved to {output_csv}")
