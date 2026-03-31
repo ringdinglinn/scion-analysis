@@ -46,12 +46,12 @@ FIGURES = [
         ["degree_std", "degree_entropy"],
     ],
     [
-        ["avg_degree", "cheeger constant"],
-        ["algebaric connectivity", "spectral gap"],
+        ["avg_degree", "cheeger_constant"],
+        ["algebraic_connectivity", "spectral_gap"],
     ],
     [   
         ["avg_degree"],
-        ["cheeger constant"]
+        ["cheeger_constant"]
     ]
 ]
 
