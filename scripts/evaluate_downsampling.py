@@ -33,4 +33,4 @@ if __name__ == "__main__":
     
     for foldername, folder in caida_folders.items():
         graph_dict = get_graph_dict(folder)
-        save_metrics(foldername, graph_dict, "results/Downsampling")
+        save_metrics(foldername, graph_dict, "results/downsampling")

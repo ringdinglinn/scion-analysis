@@ -29,16 +29,14 @@ if __name__ == "__main__":
     # caida_files = list(Path(caida_path).glob("*.txt"))
     # caida_graphs = {io.load_graph(file)[0]: io.load_graph(file)[1] for file in caida_files}
 
-    scion_isds = "data/20251201/scion_isd/edgelists_merged/"
+    scion_isds = "data/20251201/scion_isd/combined_edgelists/"
     scion_isd_files = list(Path(scion_isds).glob("*.txt"))
-    scion_core = "data/20251201/20251201.SCION_core_topo.txt"
     scion_graphs = {io.load_graph(file)[0]: io.load_graph(file)[1] for file in scion_isd_files}
 
-    # scion_isd_files += scion_core
-    # expander_path = "data/expanders/"
-    # expander_files = list(Path(expander_path).glob("*.txt"))
-    # expander_graphs = {io.load_graph(file)[0]: io.load_graph(file)[1] for file in expander_files}
+    expander_path = "data/expanders/"
+    expander_files = list(Path(expander_path).glob("*.txt"))
+    expander_graphs = {io.load_graph(file)[0]: io.load_graph(file)[1] for file in expander_files}
 
     # save_metrics(caida_graphs, "results/BGP_crve_20.csv")
     save_metrics(scion_graphs, "results/SCION_ISDs.csv")
-    # save_metrics(expander_graphs, "results/Expanders.csv")
+    save_metrics(expander_graphs, "results/Expanders.csv")
