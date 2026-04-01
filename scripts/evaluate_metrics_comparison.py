@@ -22,12 +22,11 @@ def save_metrics(graph_dict, output_path):
 
     data.to_csv(output_path, index=False)
     print(f"Created new CSV at {output_path}")
-    
 
 if __name__ == "__main__":
-    # caida_path = "data/20251201/caida_crve/20/"
-    # caida_files = list(Path(caida_path).glob("*.txt"))
-    # caida_graphs = {io.load_graph(file)[0]: io.load_graph(file)[1] for file in caida_files}
+    caida_path = "data/20251201/caida_crve/20/"
+    caida_files = list(Path(caida_path).glob("*.txt"))
+    caida_graphs = {io.load_graph(file)[0]: io.load_graph(file)[1] for file in caida_files}
 
     scion_isds = "data/20251201/scion_isd/combined_edgelists/"
     scion_isd_files = list(Path(scion_isds).glob("*.txt"))
@@ -37,6 +36,6 @@ if __name__ == "__main__":
     expander_files = list(Path(expander_path).glob("*.txt"))
     expander_graphs = {io.load_graph(file)[0]: io.load_graph(file)[1] for file in expander_files}
 
-    # save_metrics(caida_graphs, "results/BGP_crve_20.csv")
+    save_metrics(caida_graphs, "results/BGP_crve_20.csv")
     save_metrics(scion_graphs, "results/SCION_ISDs.csv")
     save_metrics(expander_graphs, "results/Expanders.csv")
