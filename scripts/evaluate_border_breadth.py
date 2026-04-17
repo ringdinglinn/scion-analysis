@@ -91,7 +91,7 @@ for cc, (out_edges, n, core_control) in results.items():
 
     G = nx.Graph()
     G.add_edges_from(isd_edges)
-    res = np.compute_r(G, [isd_ratio], 5)
+    res = np.compute(G)
     if res is None:
         results[cc] = (out_edges, n, core_control, isd_ratio, 0,0)
     else:

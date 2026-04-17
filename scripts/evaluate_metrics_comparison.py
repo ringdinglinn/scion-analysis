@@ -8,7 +8,7 @@ def run_all_metrics(name, G):
     results = {}
     results["graph_index"] = name
     results.update(metrics_basic.compute(G))
-    results.update(metrics_complex.compute(G, r_s=[0.45]))
+    results.update(metrics_complex.compute(G))
     results.update(spectral.compute(G))
     return results
 
