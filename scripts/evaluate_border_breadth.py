@@ -3,8 +3,9 @@ import re
 import metrics.network_partition as np
 import networkx as nx
 
-isd_dir = "data/20251201/scion_isd/combined_edgelists/"
-core_file = os.path.join("data/20251201/scion_isd/combined_edgelists/20251201.SCION_core_topo.txt")
+cores_dir = "data/20251201/scion_isd/core_edgelists"
+isd_dir = "data/20251201/scion_isd/combined_edgelists"
+core_file = os.path.join(cores_dir, "20251201.SCION_core_topo.txt")
 
 COUNTRIES = [
     'AU', 'BR', 'CN', 'FR', 'DE', 'IN', 'IR', 'IT',
@@ -31,21 +32,39 @@ def read_edges_and_nodes(path):
     return edges, nodes
 
 total_core_edges, total_core_nodes = read_edges_and_nodes(core_file)
-print(f"SCION Core: {len(total_core_nodes)} nodes, {len(total_core_edges)} edges")
+print(f"SCION Core: {len(total_core_nodes)} nodes")
 
 isd_files = {}
+pattern_combined = re.compile(r"20251201_scion_isd_(\w+)_combined\.txt")
+for f in os.listdir(isd_dir):
+    if f.startswith(".") or not f.endswith(".txt"):
+        continue
+    m = pattern_combined.match(f)
+    if m:
+        cc = m.group(1)
+        isd_files[cc] = os.path.join(isd_dir, f)
+
+pattern_core = re.compile(r"20251201_scion_isd_(\w+)_core\.txt")
 
 results = {}
 
 TOTAL_NODES = 78771
 
-for f in os.listdir(isd_dir):
-    if not f.endswith(".txt"):
+for f in os.listdir(cores_dir):
+    if f.startswith(".") or not f.endswith(".txt"):
+        continue
+    m = pattern_core.match(f)
+    if not m:
+        continue
+    cc = m.group(1)
+    if cc not in COUNTRIES:
+        continue
+    core_path = os.path.join(cores_dir, f)
+    isd_path = isd_files.get(cc)
+    if isd_path is None:
+        print(f"No matching combined file for {f}, skipping.")
         continue
 
-    isd_path = os.path.join(isd_dir, f)
-    cc = re.search(r'(\w{2})(?:_|\.)', f).group(1)
-    isd_files[cc] = isd_path
 
     all_edges_in_isd, all_nodes_in_isd = read_edges_and_nodes(isd_path)
 
@@ -57,13 +76,13 @@ for f in os.listdir(isd_dir):
         if (n1 in core_nodes_without_isd and n2 in all_nodes_in_isd) or (n2 in all_nodes_in_isd and n1 in core_nodes_without_isd)
     )
 
-    border_breadth = count_outgoing_edges / len(all_nodes_in_isd)
+    core_control = count_outgoing_edges / len(all_nodes_in_isd)
 
-    results[cc] = (count_outgoing_edges, len(all_nodes_in_isd), border_breadth)
+    results[cc] = (count_outgoing_edges, len(all_nodes_in_isd), core_control)
     print(f"{f}: outgoing_edges={count_outgoing_edges}, all_nodes_in_isd={len(all_nodes_in_isd)}")
 
 
-for cc, (out_edges, n, border_breadth) in results.items():
+for cc, (out_edges, n, core_control) in results.items():
     isd_ratio = n / (TOTAL_NODES - n)
     print(f"Calculating cheeger for {cc} with ratio {isd_ratio}")
 
@@ -74,18 +93,18 @@ for cc, (out_edges, n, border_breadth) in results.items():
     G.add_edges_from(isd_edges)
     res = np.compute_r(G, [isd_ratio], 5)
     if res is None:
-        results[cc] = (out_edges, n, border_breadth, isd_ratio, 0,0)
+        results[cc] = (out_edges, n, core_control, isd_ratio, 0,0)
     else:
         cheeger = res
-        results[cc] = (out_edges, n, border_breadth, isd_ratio, cheeger)
-        print(f"{cc}, cheeger: {cheeger}, core control: {border_breadth}, isd ratio: {isd_ratio}")
+        results[cc] = (out_edges, n, core_control, isd_ratio, cheeger)
+        print(f"{cc}, cheeger: {cheeger}, core control: {core_control}, isd ratio: {isd_ratio}")
 
 
 output_csv = "results/SCION_ISDs_border_breadth.csv"
 os.makedirs(os.path.dirname(output_csv), exist_ok=True)
 with open(output_csv, "w") as f:
-    f.write("cc,out_edges,nodes_in_isd,border_breadth,isd_ratio,cheeger\n")
-    for cc, (out_edges, nodes_in_isd, border_breadth, isd_ratio, cheeger) in results.items():
-        f.write(f"{cc},{out_edges},{nodes_in_isd},{border_breadth},{isd_ratio},{cheeger}\n")
+    f.write("cc,out_edges,nodes_in_isd,core_control,isd_ratio,cheeger\n")
+    for cc, (out_edges, nodes_in_isd, core_control, isd_ratio, cheeger) in results.items():
+        f.write(f"{cc},{out_edges},{nodes_in_isd},{core_control},{isd_ratio},{cheeger}\n")
 
 print(f"Results saved to {output_csv}")
