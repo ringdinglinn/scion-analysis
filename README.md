@@ -17,7 +17,7 @@ python3 -m scripts.evaluate_metrics_comparison
 ```
 
 ```bash
-python3 -m scripts.evaluate_downsamling
+python3 -m scripts.evaluate_downsampling
 ````
 
 
