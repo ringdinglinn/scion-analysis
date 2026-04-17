@@ -95,7 +95,6 @@ def resolve_label(label: str, countries: list[str], manual_labels: dict) -> tupl
 
 
 def plot_metric_on_ax(ax, metric, df_main, extra_stats, single_samples=None):
-    """Plot a single metric as a bar chart on a given Axes object."""
     df_sorted = df_main.sort_values(by=ID_COLUMN)
     x_main = np.arange(len(df_sorted))
 
@@ -123,10 +122,13 @@ def plot_metric_on_ax(ax, metric, df_main, extra_stats, single_samples=None):
     x_extra = np.arange(x_extra_start, x_extra_start + len(extra_stats))
 
     for x, stats in zip(x_extra, extra_stats):
+        std_val = stats["std"][metric]
+        std_val = np.asarray(std_val).squeeze().item() if np.size(std_val) == 1 else 0.0
+
         ax.bar(
             x,
             stats["mean"][metric],
-            yerr=stats["std"][metric],
+            yerr=None if np.isclose(std_val, 0.0) else std_val,
             capsize=ERROR_CAPSIZE,
             color=stats["color"],
             width=BAR_WIDTH,
@@ -135,7 +137,6 @@ def plot_metric_on_ax(ax, metric, df_main, extra_stats, single_samples=None):
     labels = main_labels + [f'{s["name"]} (avg)' for s in extra_stats]
     xticks = np.concatenate([x_main, x_extra])
 
-    # Single-sample datasets
     if single_samples:
         for idx, sample in enumerate(single_samples):
             x = x_extra_start + len(extra_stats) + idx
@@ -149,7 +150,7 @@ def plot_metric_on_ax(ax, metric, df_main, extra_stats, single_samples=None):
             labels.append(sample["name"])
 
     ax.set_xticks(xticks)
-    ax.set_xticklabels(labels, rotation=ROTATION, ha="right")
+    ax.set_xticklabels(labels, rotation=ROTATION, ha="right", fontsize=17)
     ax.grid(axis="y", alpha=0.3)
 
 # =========================
@@ -167,6 +168,10 @@ extra_stats = []
 
 for ds in EXTRA_DATASETS:
     df = pd.read_csv(ds["csv"])
+    # small fix for assortativity = NaN for expanders
+    # NaN is mapped to 0 for visualization 
+
+    df["assortativity"] = df["assortativity"].fillna(0.0)
 
     missing_metrics = [m for m in metrics if m not in df.columns]
     if missing_metrics:
@@ -177,8 +182,8 @@ for ds in EXTRA_DATASETS:
     extra_stats.append({
         "name": ds["name"],
         "color": ds["color"],
-        "mean": df[metrics].mean(),
-        "std": df[metrics].std(),
+        "mean": df[metrics].mean().to_dict(),
+        "std": df[metrics].std().to_dict(),
     })
 
 # =========================
@@ -243,14 +248,14 @@ for fig_idx, layout in enumerate(FIGURES):
                 extra_stats,
                 single_samples,
             )
-            ax.set_ylabel(METRICS.get(metric, metric))
+            ax.set_ylabel(METRICS.get(metric, metric), fontsize=19)
 
             if i < nrows - 1:
                 ax.set_xticklabels([])
             
             metrics.add(metric)
 
-    plt.tight_layout()
+    plt.tight_layout(rect=[0, 0, 1, 0.97])
 
     name = "_".join(sorted(set(metrics)))
     filename = f"{name}.{FILE_EXT}"
