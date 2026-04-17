@@ -8,5 +8,5 @@ METRICS = {
     "degree_std" : "Degree Standard Deviation",
     "degree_entropy" : "Degree Entropy",
     "spectral_gap": "Spectral Gap",
-    "cheeger_constant" : "Cheeger Constant, $r = 0.45, m = 0.05$"
+    "cheeger_constant" : "Cheeger Constant"
 }
