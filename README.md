@@ -1,7 +1,7 @@
 # Theoretical Analysis of Internet Architectures
 
 ## Project Overview
-This project contains the source code for a theoretical analysis of different Internet architectures. Architectures examined include the current BGP network, based on [CAIDA](https://www.caida.org) data, a hypothetical SCION tology and synthetic expander graphs.
+This project contains the source code for a theoretical analysis of different Internet architectures. Architectures examined include the current BGP network, based on [CAIDA](https://www.caida.org) data, a hypothetical SCION topology, and synthetic expander graphs.
 
 ## Requirements
 
